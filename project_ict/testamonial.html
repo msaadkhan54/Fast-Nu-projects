@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICT_PROJECT</title>
+   <link rel="icon" type="image/x-icon" href="C:\Users\Hp i7\Desktop\project_ict\favicon.jpg">
+    <style>
+        a{
+              padding-top: 10px;
+              color: #00ff80;
+              text-decoration-line: none;
+              margin-right: 100px ;
+              font-weight: 700;
+              font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+              font-size: large;
+        }
+        .b{
+              background-color: #1A1A2E;
+              border-radius: 12px;
+              height: 69px;
+              width:1250px
+        }
+        .per{
+              font-size: xx-large;
+              color: white;
+              font-weight: bolder;
+              font-family: Arial, Helvetica, sans-serif;
+              padding-left: 20px;
+              padding-top: -10px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #0b0b45;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        nav a {
+            color: #00ff80;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-weight: bold;
+        }
+        nav a:hover {
+            background-color: #00ff80;
+            color: #202060;
+        }
+        .testimonial-section {
+            padding: 30px;
+            text-align: center;
+        }
+        .testimonial-section h2 {
+            font-size: 28px;
+            color: #0b0b45;
+            margin-bottom: 10px;
+        }
+        .testimonial-section p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        .testimonials {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .testimonial-card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 300px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            position: relative;
+        }
+        .testimonial-card::before {
+            content: "“";
+            font-size: 50px;
+            color: #0b0b45;
+            position: absolute;
+            top: 5px;
+            left: 10px;
+        }
+        .testimonial-card::after {
+            content: "”";
+            font-size: 50px;
+            color: #0b0b45;
+            position: absolute;
+            bottom: -10px;
+            right: 10px;
+        }
+        .testimonial-card p {
+            font-size: 14px;
+            color: #555;
+            margin: 10px 0;
+            text-align: left;
+        }
+        .testimonial-card h3 {
+            font-size: 16px;
+            color: #0b0b45;
+            margin-top: 10px;
+        }
+        .testimonial-card span {
+            font-size: 12px;
+            color: #888;
+        }
+        .review-form {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 30px auto;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .review-form h3 {
+            font-size: 20px;
+            color: #0b0b45;
+            margin-bottom: 10px;
+        }
+        .review-form label {
+            font-size: 14px;
+            color: #555;
+            display: block;
+            margin: 10px 0 5px;
+        }
+        .review-form input, .review-form textarea, .review-form button {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .review-form button {
+            background-color: #00ff80;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .review-form button:hover {
+            background-color: #008f50;
+        }
+        footer {
+            background-color: #0b0b45;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            height: 60px;
+            border-radius: 12px;
+        }
+        footer p {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="b">
+        <a class="per">PERSONAL PORTFOLIO</a>
+        <a href="home.html" class="my-link" onclick="showPopup()">HOME</a>
+        <a href="project.html" class="my-link" onclick="showPopup3()">PROJECT</a>
+        <a href="#" class="my-link" onclick="showPopup4()">TESTIMONIALS</a>
+        <a href="contact.html" class="my-link" onclick="showPopup2()">CONTACT</a>
+    </div>
+
+    <div class="testimonial-section">
+        <h2>Testimonials</h2>
+        <p>See what clients and collaborators have to say about my work.</p>
+        <div class="testimonials" id="testimonialsSection">
+            <!-- Existing testimonials will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Review Submission Form -->
+    <div class="review-form">
+        <h3>Submit Your Review</h3>
+        <form id="reviewForm">
+            <label for="name">Your Name:</label>
+            <input type="text" id="name" name="name" placeholder="Enter your name" required>
+            
+            <label for="title">Your Title/Position:</label>
+            <input type="text" id="title" name="title" placeholder="e.g., CEO, Developer" required>
+            
+            <label for="message">Your Review:</label>
+            <textarea id="message" name="message" rows="5" placeholder="Write your review here..." required></textarea>
+            
+            <button type="submit">Submit Review</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Personal Portfolio.</p>
+    </footer>
+
+    <script>
+        // Testimonial data - this would typically come from a database
+        const testimonials = [
+            {
+                name: "John Doe",
+                title: "CEO, Tech Solutions",
+                message: "This portfolio reflects professionalism and creativity. Working with you has been an incredible experience."
+            },
+            {
+                name: "Jane Smith",
+                title: "Freelance Designer",
+                message: "Your work exceeded expectations! The attention to detail and innovation you bring are exceptional."
+            },
+            {
+                name: "Mark Wilson",
+                title: "Project Manager, Bright Solutions",
+                message: "The final project was delivered perfectly on time and with outstanding quality. Highly recommend your services!"
+            }
+        ];
+
+        // Function to display testimonials
+        function displayTestimonials() {
+            const testimonialsSection = document.getElementById("testimonialsSection");
+            testimonialsSection.innerHTML = "";  // Clear existing testimonials
+            testimonials.forEach((testimonial) => {
+                const testimonialCard = document.createElement("div");
+                testimonialCard.classList.add("testimonial-card");
+                testimonialCard.innerHTML = `
+                    <p>"${testimonial.message}"</p>
+                    <h3>${testimonial.name}</h3>
+                    <span>${testimonial.title}</span>
+                `;
+                testimonialsSection.appendChild(testimonialCard);
+            });
+        }
+
+        // Call displayTestimonials initially to populate with existing data
+        displayTestimonials();
+
+        // Form submission handling
+        document.getElementById("reviewForm").addEventListener("submit", async (e) => {
+            e.preventDefault();  // Prevent default form submission
+
+            const name = document.getElementById("name").value;
+            const title = document.getElementById("title").value;
+            const message = document.getElementById("message").value;
+
+            // Add the new review to the testimonials array (in a real app, this would be saved to a database)
+            testimonials.push({ name, title, message });
+
+            // Dynamically update the testimonials section
+            displayTestimonials();
+
+            // Send the review to your email (using an API endpoint like Node.js / submit-review)
+            const response = await fetch('/submit-review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, title, message })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert("Thank you for your review!");
+            } else {
+                alert("There was an error submitting your review. Please try again.");
+            }
+
+            // Reset the form
+            document.getElementById("reviewForm").reset();
+        });
+        function showPopup() {
+                alert("Hello! This is home page .");
+            }
+            function showPopup2(){
+                alert("Hello! This is contact page.")
+            }
+            function showPopup3(){
+                alert("Hello! This is project page.")
+            }
+            function showPopup3(){
+                alert("Hello! This is testimonial page.")
+            }
+    </script>
+</body>
+</html>
