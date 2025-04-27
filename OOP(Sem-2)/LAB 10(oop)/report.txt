@@ -1,0 +1,14 @@
+Here's a paragraph with various punctuation marks to illustrate their use: "The old, dusty book, a treasure from my grandmother, lay open on the table; its yellowed pages whispered stories of a time long gone—or so I thought! “Don't touch it,” she had warned, her voice a soft, gentle murmur—but I couldn't resist its allure. The scent of aged paper and ink filled the air, enticing me to delve deeper into its secrets--and I did!"
+This example demonstrates:
+Periods: ( . ) at the end of sentences.
+Commas: ( , ) to separate items in a list, introduce subordinate clauses, and set off introductory phrases.
+Semicolons: ( ; ) to link closely related independent clauses.
+Dashes: ( — ) to interrupt the flow of a sentence or introduce an explanation.
+Exclamation points: ( ! ) to express strong emotion or emphasis.
+Quotation marks: ( " ") to indicate direct speech.
+Apostrophes: ( ' )to show possession or contractions.
+
+characters: 873
+Word: 158
+Line: 10
+Punctuation Mark: 57

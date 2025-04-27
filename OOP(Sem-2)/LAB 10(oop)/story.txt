@@ -1,0 +1,3 @@
+Ask the user for the recipient’s name and a short message.
+Open a file named greeting.txt in write mode.
+Write the message in the format:
