@@ -19,7 +19,7 @@ class SmartArray{
 		void operator[](int index){
 			cout<<"Accessing index "<<index<<":";
 			if(index>=size || index<0){
-				cout<<endl;h
+				cout<<endl;
 				throw "OutOfBoundsException caught: Invalid index access attempted!";
 			}
 			for(int i=0;i<size;i++){
