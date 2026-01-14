@@ -1,0 +1,45 @@
+.main{
+    height:350px;
+    width: 180px;
+    background-color: black;
+    color: aliceblue;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+.first{
+    background-color: #ff0000;
+    color:black;
+    height:50px;
+    width:50px;
+    border-radius: 50%;
+    padding-top: 40px;
+    padding-left: 25px;
+    padding-right: 25px;
+    margin: 12px 30px 15px 40px;
+    text-align: center;
+}
+.second{
+    background-color: #dada4d;
+    color:black;
+    height:50px;
+    width:50px;
+    border-radius: 50%;
+    padding-top: 40px;
+    padding-left: 25px;
+    padding-right: 25px;
+    margin: 12px 30px 15px 40px;
+    text-align: center;
+}
+.third{
+    background-color: #2dce5d;
+    color:black;
+    height:50px;
+    width:50px;
+    border-radius: 50%;
+    padding-top: 40px;
+    padding-left: 25px;
+    padding-right: 25px;
+    margin: 12px 30px 15px 40px;
+    text-align: center;
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>javascript</title>
+</head>
+<body>
+<p id="first">hello</p>
+<button type="button" onclick="document.getElementById('first').innerHTML= 'hello world'">click on it!</button>
+<input type="text" id="text1" placeholder="enter here!"><br>
+<input type="text" id="text2" placeholder="Enter here."><br> 
+<button onclick="merge('+')">+</button>
+<h3>Result:</h3>  
+<script>
+function merge(operator) {
+    let text1 = (document.getElementById('text1').textContent);
+    let text2 = (document.getElementById('text2').textContent)
+    case '+':
+        result="text1"+" "+"text2";
+        break;
+        document.getElementById('result').innerText = result;    
+}   
+</script>    
+</body>
+</html>

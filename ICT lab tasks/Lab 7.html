@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator</title>
+    <style>
+        input{
+            background-color: rgb(213, 232, 164);
+            color: rgb(165, 16, 16);
+            margin:5px;
+        }
+        body {
+            align-items: center;
+            background-color: rgb(148, 220, 238);
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            margin: 5px;
+            background-color: rgb(139, 180, 161);
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="color:rgb(83, 44, 18): bolder; font-family: 'Times New Roman', Times, serif; text-transform: uppercase; text-decoration: rgb(143, 36, 36) solid;">Simple Calculator</h1><hr>
+
+    <input type="number" id="number1" placeholder="Number 1" />
+    <input type="number" id="number2" placeholder="Number 2" />
+    <br><br>
+
+    <button onclick="calculate('+')">+</button>
+    <button onclick="calculate('-')">-</button>
+    <button onclick="calculate('*')">*</button>
+    <button onclick="calculate('/')">/</button>
+
+    <h3 style="color: brown; font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; ">Result: <span id="result">0</span></h3>
+
+    <script>
+        function calculate(operator) {
+            var num1 = parseFloat(document.getElementById('number1').value);
+            var num2 = parseFloat(document.getElementById('number2').value);
+            var result = 0;
+
+            if (!isNaN(num1) && !isNaN(num2)) {
+                switch (operator) {
+                    case '+':
+                        result = num1 + num2;
+                        break;
+                    case '-':
+                        result = num1 - num2;
+                        break;
+                    case '*':
+                        result = num1 * num2;
+                        break;
+                    case '/':
+                        if (num2 !== 0) {
+                            result = num1 / num2;
+                        } else {
+                            alert('Cannot divide by zero!');
+                            result = 'undefined';
+                        }
+                        break;
+                }
+            } else {
+                alert('Please enter valid numbers!');
+            }
+
+            document.getElementById('result').innerText = result;
+        }
+    </script>
+
+</body>
+</html>
