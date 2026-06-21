@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/msaadkhan54/Fast-Nu-projects.git'
+            }
+        }
+
+        stage('Build Docker') {
+            steps {
+                sh '''
+                cd project_ict
+                docker build -t ict-project .
+                '''
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh '''
+                docker stop ict || true
+                docker rm ict || true
+                docker run -d -p 80:80 --name ict ict-project
+                '''
+            }
+        }
+    }
+}
