@@ -1,15 +1,15 @@
 pipeline {
     agent any
 
+    environment {
+        AWS_REGION = 'us-east-1'
+        ECR_REPO = 'ict_project'
+        ACCOUNT_ID = '678878256416'
+    }
+
     stages {
 
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/msaadkhan54/Fast-Nu-projects.git'
-            }
-        }
-
-        stage('Build Docker') {
+        stage('Build Image') {
             steps {
                 sh '''
                 cd project_ict
@@ -18,12 +18,30 @@ pipeline {
             }
         }
 
-        stage('Run Container') {
+        stage('Login to ECR') {
             steps {
                 sh '''
-                docker stop ict || true
-                docker rm ict || true
-                docker run -d -p 80:80 --name ict ict-project
+                aws ecr get-login-password --region $AWS_REGION | \
+                docker login --username AWS --password-stdin \
+                $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+                '''
+            }
+        }
+
+        stage('Tag Image') {
+            steps {
+                sh '''
+                docker tag ict-project:latest \
+                $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
+                '''
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh '''
+                docker push \
+                $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
                 '''
             }
         }
