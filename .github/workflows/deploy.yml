@@ -32,7 +32,7 @@ jobs:
 
       - name: Build Image
         run: |
-          docker build -t mywebsite .
+          docker build -t mywebsite ./project_ict
 
       - name: Tag Image
         run: |
