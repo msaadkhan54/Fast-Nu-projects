@@ -10,9 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
       - name: Deploy To EC2
         uses: appleboy/ssh-action@v1.0.3
 
@@ -23,8 +20,19 @@ jobs:
 
           script: |
             cd ~
+
+            # clean old repo
             rm -rf Fast-Nu-projects
-            git clone https://github.com/YOUR_USERNAME/Fast-Nu-projects.git
+
+            # IMPORTANT: correct repo URL
+            git clone https://github.com/msaadkhan54/Fast-Nu-projects.git
+
+            cd Fast-Nu-projects
+
+            # clean nginx folder
             sudo rm -rf /usr/share/nginx/html/*
-            sudo cp -r Fast-Nu-projects/project_ict/* /usr/share/nginx/html/
+
+            # deploy correct folder (ONLY if it exists)
+            sudo cp -r project_ict/* /usr/share/nginx/html/
+
             sudo systemctl restart nginx
