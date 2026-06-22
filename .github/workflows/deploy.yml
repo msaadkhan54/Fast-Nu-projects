@@ -37,12 +37,12 @@ jobs:
       - name: Tag Image
         run: |
           docker tag mywebsite:latest \
-          678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict
+          678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict:v1
 
       - name: Push Image
         run: |
           docker push \
-          678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict
+          678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict:v1
 
       - name: Deploy To EC2
         uses: appleboy/ssh-action@v1.0.3
@@ -58,7 +58,7 @@ jobs:
             --password-stdin \
             678878256416.dkr.ecr.us-east-1.amazonaws.com
 
-            docker pull 678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict
+            docker pull 678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict:v1
 
             docker stop website || true
             docker rm website || true
@@ -66,4 +66,4 @@ jobs:
             docker run -d \
               --name website \
               -p 80:80 \
-              <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/mywebsite:latest
+              678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict:v1
