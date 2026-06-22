@@ -1,4 +1,4 @@
-name: Deploy Website
+name: Deploy To ECR
 
 on:
   push:
@@ -6,33 +6,64 @@ on:
       - main
 
 jobs:
+
   deploy:
+
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+
     steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Image
+        run: |
+          docker build -t mywebsite .
+
+      - name: Tag Image
+        run: |
+          docker tag mywebsite:latest \
+          678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict
+
+      - name: Push Image
+        run: |
+          docker push \
+          678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict
+
       - name: Deploy To EC2
         uses: appleboy/ssh-action@v1.0.3
-
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
 
           script: |
-            cd ~
+            aws ecr get-login-password --region us-east-1 | \
+            docker login \
+            --username AWS \
+            --password-stdin \
+            678878256416.dkr.ecr.us-east-1.amazonaws.com
 
-            # clean old repo
-            rm -rf Fast-Nu-projects
+            docker pull 678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict
 
-            # IMPORTANT: correct repo URL
-            git clone https://github.com/msaadkhan54/Fast-Nu-projects.git
+            docker stop website || true
+            docker rm website || true
 
-            cd Fast-Nu-projects
-
-            # clean nginx folder
-            sudo rm -rf /usr/share/nginx/html/*
-
-            # deploy correct folder (ONLY if it exists)
-            sudo cp -r project_ict/* /usr/share/nginx/html/
-
-            sudo systemctl restart nginx
+            docker run -d \
+              --name website \
+              -p 80:80 \
+              <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/mywebsite:latest
