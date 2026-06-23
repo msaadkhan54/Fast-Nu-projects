@@ -3,18 +3,27 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-1'
-        ECR_REPO = 'ict_project'
-        ACCOUNT_ID = '678878256416'
+        AWS_ACCOUNT_ID = '678878256416'
+        IMAGE_NAME = 'project-ict'
+        IMAGE_TAG = 'latest'
     }
 
     stages {
 
-        stage('Build Image') {
+        stage('Clone') {
             steps {
-                sh '''
-                cd project_ict
-                docker build -t ict-project .
-                '''
+                git branch: 'main',
+                url: 'https://github.com/msaadkhan54/Fast-Nu-projects.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('project_ict') {
+                    sh '''
+                    docker build -t $IMAGE_NAME:$IMAGE_TAG .
+                    '''
+                }
             }
         }
 
@@ -23,7 +32,7 @@ pipeline {
                 sh '''
                 aws ecr get-login-password --region $AWS_REGION | \
                 docker login --username AWS --password-stdin \
-                $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+                $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
                 '''
             }
         }
@@ -31,17 +40,17 @@ pipeline {
         stage('Tag Image') {
             steps {
                 sh '''
-                docker tag ict-project:latest \
-                $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
+                docker tag $IMAGE_NAME:$IMAGE_TAG \
+                678878256416.dkr.ecr.us-east-1.amazonaws.com/ict_project:$IMAGE_TAG
                 '''
             }
         }
 
-        stage('Push Image') {
+        stage('Push to ECR') {
             steps {
                 sh '''
                 docker push \
-                $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
+                678878256416.dkr.ecr.us-east-1.amazonaws.com/ict_project:$IMAGE_TAG
                 '''
             }
         }
