@@ -1,69 +1,49 @@
-name: Deploy To ECR
+name: Build and Push to ECR
 
 on:
-  push:
-    branches:
-      - main
+push:
+branches:
+- main
 
 jobs:
+build-and-push:
+runs-on: ubuntu-latest
 
-  deploy:
+```
+permissions:
+  id-token: write
+  contents: read
 
-    runs-on: ubuntu-latest
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: project-ict
 
-    permissions:
-      contents: read
+steps:
+  - name: Checkout Code
+    uses: actions/checkout@v4
 
-    steps:
+  - name: Configure AWS Credentials
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-region: ${{ env.AWS_REGION }}
 
-      - name: Checkout
-        uses: actions/checkout@v4
+  - name: Login to Amazon ECR
+    id: login-ecr
+    uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+  - name: Build Docker Image
+    run: |
+      docker build -t $ECR_REPOSITORY:latest ./project_ict
 
-      - name: Login to ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+  - name: Tag Docker Image
+    run: |
+      docker tag $ECR_REPOSITORY:latest \
+      ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest
 
-      - name: Build Image
-        run: |
-          docker build -t mywebsite ./project_ict
-
-      - name: Tag Image
-        run: |
-          docker tag mywebsite:latest \
-          678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict:v1
-
-      - name: Push Image
-        run: |
-          docker push \
-          678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict:v1
-
-      - name: Deploy To EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-
-          script: |
-            aws ecr get-login-password --region us-east-1 | \
-            docker login \
-            --username AWS \
-            --password-stdin \
-            678878256416.dkr.ecr.us-east-1.amazonaws.com
-
-            docker pull 678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict:v1
-
-            docker stop website || true
-            docker rm website || true
-
-            docker run -d \
-              --name website \
-              -p 80:80 \
-              678878256416.dkr.ecr.us-east-1.amazonaws.com/project_ict:v1
+  - name: Push Docker Image
+    run: |
+      docker push \
+      ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest
+```
