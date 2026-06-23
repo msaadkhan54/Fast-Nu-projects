@@ -1,5 +1,5 @@
 name: Build and Push to ECR
-
+run-name: "Deploy: ${{ github.event.head_commit.message }}"
 on:
   push:
     branches:
@@ -15,7 +15,7 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      ECR_REPOSITORY: project-ict
+      ECR_REPOSITORY: ict_project
 
     steps:
       - name: Checkout Code
