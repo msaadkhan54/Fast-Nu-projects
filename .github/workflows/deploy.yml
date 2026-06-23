@@ -15,7 +15,7 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      ECR_REPOSITORY: project-ict
+      ECR_REPOSITORY: ict_project
 
     steps:
       - name: Checkout Code
