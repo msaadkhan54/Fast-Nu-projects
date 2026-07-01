@@ -16,7 +16,7 @@ phases:
 
       - echo Building Docker image...
 
-      - docker build -t saad_img:v1 project_ict/Dockerfile
+      - docker build -t saad_img:v1 ./project_ict
 
       - docker tag saad_img:v1 678878256416.dkr.ecr.us-east-1.amazonaws.com/prac_repo:v1
 
