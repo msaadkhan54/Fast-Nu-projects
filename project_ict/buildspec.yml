@@ -3,29 +3,25 @@ version: 0.2
 phases:
 
   pre_build:
-
     commands:
-
       - echo Logging in to Amazon ECR...
-
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 678878256416.dkr.ecr.us-east-1.amazonaws.com
+      - IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
+      - echo "Image Tag: $IMAGE_TAG"
 
   build:
-
     commands:
-
       - echo Building Docker image...
-
-      - docker build -t saad_img:v2 ./project_ict
-
-      - docker tag saad_img:v2 678878256416.dkr.ecr.us-east-1.amazonaws.com/prac_repo:v2
+      - docker build -t saad_img:$IMAGE_TAG ./project_ict
+      - docker tag saad_img:$IMAGE_TAG 678878256416.dkr.ecr.us-east-1.amazonaws.com/prac_repo:$IMAGE_TAG
 
   post_build:
-
     commands:
-
       - echo Pushing Docker image...
+      - docker push 678878256416.dkr.ecr.us-east-1.amazonaws.com/prac_repo:$IMAGE_TAG
 
-      - docker push 678878256416.dkr.ecr.us-east-1.amazonaws.com/prac_repo:v2
+      - printf '[{"name":"prac_container","imageUri":"678878256416.dkr.ecr.us-east-1.amazonaws.com/prac_repo:%s"}]' "$IMAGE_TAG" > imagedefinitions.json
 
-      - echo Build completed
+artifacts:
+  files:
+    - imagedefinitions.json
