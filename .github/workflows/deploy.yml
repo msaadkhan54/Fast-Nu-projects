@@ -7,7 +7,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: prac_repo
+  ECR_REPOSITORY: saad-ecr-repository
   IMAGE_NAME: saad_img
 
 jobs:
