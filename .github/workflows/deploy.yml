@@ -64,10 +64,12 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --targets "Key=tag:Role,Values=WebServer" \
             --comment "Deploy latest Docker image" \
-            --parameters commands='[
-              "aws ecr get-login-password --region '${{ env.AWS_REGION }}' | docker login --username AWS --password-stdin '${{ env.AWS_ACCOUNT_ID }}'.dkr.ecr.'${{ env.AWS_REGION }}'.amazonaws.com",
-              "docker stop '${{ env.CONTAINER_NAME }}' || true",
-              "docker rm '${{ env.CONTAINER_NAME }}' || true",
-              "docker pull '${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:'${{ env.IMAGE_TAG }}'",
-              "docker run -d --name '${{ env.CONTAINER_NAME }}' -p 80:80 '${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:'${{ env.IMAGE_TAG }}'"
-            ]'
+            --parameters '{
+              "commands": [
+                "aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}",
+                "docker stop ${{ env.CONTAINER_NAME }} || true",
+                "docker rm ${{ env.CONTAINER_NAME }} || true",
+                "docker pull ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}",
+                "docker run -d --restart always --name ${{ env.CONTAINER_NAME }} -p 80:80 ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+              ]
+            }'
