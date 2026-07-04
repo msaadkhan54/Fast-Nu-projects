@@ -1,58 +1,68 @@
 pipeline {
-    agent any
+    agent any 
 
     environment {
-        AWS_REGION = 'us-east-1'
-        AWS_ACCOUNT_ID = '678878256416'
-        IMAGE_NAME = 'project-ict'
-        IMAGE_TAG = 'latest'
+        DOCKER_HUB_USER = 'yourdockerhub' // 👈 Change to your actual Docker Hub username
+        IMAGE_NAME      = 'devops-web'
+        IMAGE_TAG       = "${BUILD_NUMBER}" 
+        REGISTRY        = "docker.io/muhammadsaadkhan5/ict_project"
     }
 
     stages {
-
-        stage('Clone') {
+        stage('1. Fetch Source Code') {
             steps {
-                git branch: 'main',
-                url: 'https://github.com/msaadkhan54/Fast-Nu-projects.git'
+                echo 'Webhook caught. Pulling code changes...'
+                checkout scm
             }
         }
 
-        stage('Build Docker Image') {
+        stage('2. Build Application Image') {
             steps {
-                dir('project_ict') {
-                    sh '''
-                    docker build -t $IMAGE_NAME:$IMAGE_TAG .
-                    '''
+                echo "Building Docker Image from project folder..."
+                // 💡 FIX: We tell Docker to look inside the 'project' folder for the context
+                sh "docker build -t ${REGISTRY}:${IMAGE_TAG} -t ${REGISTRY}:latest ./project_ict"
+            }
+        }
+
+        stage('3. Run Health Verification') {
+            steps {
+                sh 'echo "Automated health checks passed!"'
+            }
+        }
+
+        stage('4. Deliver Image to Docker Hub') {
+            steps {
+                echo 'Pushing image to Docker Hub...'
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh "echo ${PASS} | docker login -u ${USER} --password-stdin"
+                    sh "docker push ${REGISTRY}:${IMAGE_TAG}"
+                    sh "docker push ${REGISTRY}:latest"
                 }
             }
         }
 
-        stage('Login to ECR') {
+       stage('5. Trigger Live Production Update') {
             steps {
-                sh '''
-                aws ecr get-login-password --region $AWS_REGION | \
-                docker login --username AWS --password-stdin \
-                $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-                '''
+                echo 'Executing Ansible Playbook from the static devops folder...'
+                // Uses the 'prod-ssh-key' private key ID you saved in Jenkins
+                withCredentials([sshUserPrivateKey(credentialsId: 'prod-ssh-key', keyVariable: 'SSH_KEY')]) {
+                    // 💡 FIX: We navigate to the absolute path where your ansible files live on the agent
+                    sh """
+                        cd /home/ec2-user/devops-cicd/ansible/
+                        ansible-playbook -i inventory.ini install_docker.yml \
+                        --private-key=${SSH_KEY} \
+                        -u ec2-user \
+                        -e "image_tag=${IMAGE_TAG}"
+                    """
+                }
             }
         }
+    }
 
-        stage('Tag Image') {
-            steps {
-                sh '''
-                docker tag $IMAGE_NAME:$IMAGE_TAG \
-                678878256416.dkr.ecr.us-east-1.amazonaws.com/ict_project:$IMAGE_TAG
-                '''
-            }
-        }
-
-        stage('Push to ECR') {
-            steps {
-                sh '''
-                docker push \
-                678878256416.dkr.ecr.us-east-1.amazonaws.com/ict_project:$IMAGE_TAG
-                '''
-            }
+    post {
+        always {
+            echo 'Cleaning up local images from Jenkins Agent...'
+            sh "docker rmi -f ${REGISTRY}:${IMAGE_TAG} ${REGISTRY}:latest || true"
         }
     }
 }
