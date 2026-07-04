@@ -41,20 +41,13 @@ pipeline {
             }
         }
 
-       stage('5. Trigger Live Production Update') {
+     stage('5. Trigger Live Production Update') {
             steps {
                 echo 'Executing Ansible Playbook from the static devops folder...'
-                // Uses the 'prod-ssh-key' private key ID you saved in Jenkins
-                withCredentials([sshUserPrivateKey(credentialsId: 'prod-ssh-key', keyVariable: 'SSH_KEY')]) {
-                    // 💡 FIX: We navigate to the absolute path where your ansible files live on the agent
-                    sh """
-                        cd /home/ec2-user/devops-cicd/ansible/
-                        ansible-playbook -i inventory.ini install_docker.yml \
-                        --private-key=${SSH_KEY} \
-                        -u ec2-user \
-                        -e "image_tag=${IMAGE_TAG}"
-                    """
-                }
+                sh """
+                    cd /home/ec2-user/devops-cicd/ansible/
+                    ansible-playbook -i inventory.ini install_docker.yml -e "image_tag=${IMAGE_TAG}"
+                """
             }
         }
     }
