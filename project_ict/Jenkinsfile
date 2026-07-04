@@ -5,7 +5,7 @@ pipeline {
         DOCKER_HUB_USER = 'yourdockerhub' // 👈 Change to your actual Docker Hub username
         IMAGE_NAME      = 'devops-web'
         IMAGE_TAG       = "${BUILD_NUMBER}" 
-        REGISTRY        = "docker.io/${DOCKER_HUB_USER}/${IMAGE_NAME}"
+        REGISTRY        = "docker.io/muhammadsaadkhan5/ict_project"
     }
 
     stages {
@@ -20,7 +20,7 @@ pipeline {
             steps {
                 echo "Building Docker Image from project folder..."
                 // 💡 FIX: We tell Docker to look inside the 'project' folder for the context
-                sh "docker build -t ${REGISTRY}:${IMAGE_TAG} -t ${REGISTRY}:latest ./project"
+                sh "docker build -t ${REGISTRY}:${IMAGE_TAG} -t ${REGISTRY}:latest ./project_ict"
             }
         }
 
@@ -41,13 +41,14 @@ pipeline {
             }
         }
 
-        stage('5. Trigger Live Production Update') {
+       stage('5. Trigger Live Production Update') {
             steps {
-                echo 'Executing Ansible Playbook to update Production EC2...'
+                echo 'Executing Ansible Playbook from the static devops folder...'
+                // Uses the 'prod-ssh-key' private key ID you saved in Jenkins
                 withCredentials([sshUserPrivateKey(credentialsId: 'prod-ssh-key', keyVariable: 'SSH_KEY')]) {
-                    // 💡 FIX: We handle the path to your ansible folder assuming it is at the root
+                    // 💡 FIX: We navigate to the absolute path where your ansible files live on the agent
                     sh """
-                        cd ansible/
+                        cd /home/ec2-user/devops-cicd/ansible/
                         ansible-playbook -i inventory.ini install_docker.yml \
                         --private-key=${SSH_KEY} \
                         -u ec2-user \
