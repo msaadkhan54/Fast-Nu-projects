@@ -40,8 +40,12 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
+                export KUBECONFIG=/var/lib/jenkins/.kube/config
+        
                 kubectl set image deployment/ict-website \
                 ict-container=$IMAGE_NAME:$IMAGE_TAG
+        
+                kubectl rollout status deployment/ict-website
                 '''
             }
         }
