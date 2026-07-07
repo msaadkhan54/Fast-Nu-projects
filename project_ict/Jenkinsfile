@@ -1,61 +1,50 @@
 pipeline {
-    agent any 
+    agent any
 
     environment {
-        DOCKER_HUB_USER = 'yourdockerhub' // 👈 Change to your actual Docker Hub username
-        IMAGE_NAME      = 'devops-web'
-        IMAGE_TAG       = "${BUILD_NUMBER}" 
-        REGISTRY        = "docker.io/muhammadsaadkhan5/ict_project"
+        IMAGE_NAME = "muhammadsaadkhan5/ict_project"
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
-        stage('1. Fetch Source Code') {
+
+        stage('Checkout') {
             steps {
-                echo 'Webhook caught. Pulling code changes...'
                 checkout scm
             }
         }
 
-        stage('2. Build Application Image') {
+        stage('Build Docker Image') {
             steps {
-                echo "Building Docker Image from project folder..."
-                // 💡 FIX: We tell Docker to look inside the 'project' folder for the context
-                sh "docker build -t ${REGISTRY}:${IMAGE_TAG} -t ${REGISTRY}:latest ./project_ict"
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
             }
         }
 
-        stage('3. Run Health Verification') {
+        stage('Push to Docker Hub') {
             steps {
-                sh 'echo "Automated health checks passed!"'
-            }
-        }
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
 
-        stage('4. Deliver Image to Docker Hub') {
-            steps {
-                echo 'Pushing image to Docker Hub...'
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh "echo ${PASS} | docker login -u ${USER} --password-stdin"
-                    sh "docker push ${REGISTRY}:${IMAGE_TAG}"
-                    sh "docker push ${REGISTRY}:latest"
+                    sh '''
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    docker push $IMAGE_NAME:$IMAGE_TAG
+                    docker logout
+                    '''
                 }
             }
         }
 
-     stage('5. Trigger Live Production Update') {
+        stage('Deploy to Kubernetes') {
             steps {
-                echo 'Executing Ansible Playbook from the static devops folder...'
-                sh """
-                    cd /home/ec2-user/devops-cicd/ansible/
-                    ansible-playbook -i inventory.ini install_docker.yml -e "image_tag=${IMAGE_TAG}"
-                """
+                sh '''
+                kubectl set image deployment/ict-website \
+                ict-container=$IMAGE_NAME:$IMAGE_TAG
+                '''
             }
         }
-    }
 
-    post {
-        always {
-            echo 'Cleaning up local images from Jenkins Agent...'
-            sh "docker rmi -f ${REGISTRY}:${IMAGE_TAG} ${REGISTRY}:latest || true"
-        }
     }
 }
