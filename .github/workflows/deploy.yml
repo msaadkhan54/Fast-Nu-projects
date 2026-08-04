@@ -1,76 +1,48 @@
-name: Build and Push Docker Image to Amazon ECR
+name: Build and Push to ECR
 
 on:
   push:
     branches:
       - main
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: saad-ecr-repository
-  IMAGE_NAME: saad_img
-  CONTAINER_NAME: saadkhan
+  ECR_REPOSITORY: saad-ecr
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
+  build:
 
-    permissions:
-      contents: read
+    runs-on: ubuntu-latest
 
     steps:
 
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::678878256416:role/GitHubOIDCRole
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Generate Image Tag
-        run: echo "IMAGE_TAG=${{ github.run_number }}" >> $GITHUB_ENV
 
       - name: Build Docker Image
         run: |
-          docker build \
-          -t $IMAGE_NAME:$IMAGE_TAG \
-          ./project_ict
+          docker build -t $ECR_REPOSITORY:${GITHUB_SHA::7} ./project_ict
 
-      - name: Tag Docker Image
+      - name: Tag Image
         run: |
           docker tag \
-          $IMAGE_NAME:$IMAGE_TAG \
-          ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
+          $ECR_REPOSITORY:${GITHUB_SHA::7} \
+          ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${GITHUB_SHA::7}
 
-      - name: Push Docker Image to Amazon ECR
+      - name: Push Image
         run: |
           docker push \
-          ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
-
-      - name: Display Image URI
-        run: |
-          echo "Image pushed successfully"
-          echo "${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
-
-      - name: Deploy to EC2 using AWS Systems Manager
-        run: |
-          aws ssm send-command \
-            --document-name "AWS-RunShellScript" \
-            --targets "Key=tag:Role,Values=WebServer" \
-            --comment "Deploy latest Docker image" \
-            --parameters '{
-              "commands": [
-                "aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}",
-                "docker stop ${{ env.CONTAINER_NAME }} || true",
-                "docker rm ${{ env.CONTAINER_NAME }} || true",
-                "docker pull ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}",
-                "docker run -d --restart always --name ${{ env.CONTAINER_NAME }} -p 80:80 ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
-              ]
-            }'
+          ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${GITHUB_SHA::7}
